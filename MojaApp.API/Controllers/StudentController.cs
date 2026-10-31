@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using MojaApp.API.Data;
 using MojaApp.API.Dtos;
 using MojaApp.API.Models;
@@ -7,12 +8,12 @@ namespace MojaApp.API.Controllers
 {
     [ApiController]
     [Route("[controller]")]
-    public class StudentController(StudentStorage ss) : Controller
+    public class StudentController(AppDbContext db) : Controller
     {
         [HttpGet]
-        public List<StudentResponse> GetAll()
+        public async Task<List<StudentResponse>> GetAll(CancellationToken ct)
         {
-            var students = ss.GetAll();
+            var students = await db.Student.ToListAsync(ct);
             return students.Select(Mapiraj).ToList();
         }
 
