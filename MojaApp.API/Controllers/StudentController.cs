@@ -13,8 +13,17 @@ namespace MojaApp.API.Controllers
         [HttpGet]
         public async Task<List<StudentResponse>> GetAll(CancellationToken ct)
         {
-            var students = await db.Student.ToListAsync(ct);
-            return students.Select(Mapiraj).ToList();
+            IQueryable<Student> upit = db.Student;
+            return await upit.OrderBy(x=> x.Prezime).ThenBy(x=>x.Ime).Select(x => new StudentResponse
+            {
+                Id = x.Id,
+                ImePrezime = x.Ime + ' ' + x.Prezime,
+                BrojIndeksa = x.BrojIndeksa,
+                DatumRodjenja = x.DatumRodjenja,
+                Smjer = x.Smjer != null ? x.Smjer.Naziv : null
+            }).ToListAsync(ct);
+            //var students = await db.Student.ToListAsync(ct);
+            //return students.Select(Mapiraj).ToList();
         }
 
         [HttpGet("{id:int}")]
