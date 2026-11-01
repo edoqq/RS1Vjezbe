@@ -17,6 +17,31 @@ namespace MojaApp.API.Controllers
             return students.Select(Mapiraj).ToList();
         }
 
+        [HttpGet("{id:int}")]
+        public async Task<ActionResult<StudentResponse>> GetById(int id, CancellationToken ct)
+        {
+            Student? s = await db.Student.FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (s == null)
+                return NotFound();
+            return Ok(Mapiraj(s));
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<StudentResponse>> AddStudent(StudentAddRequest request, CancellationToken ct)
+        {
+            Student student = new Student()
+            {
+                Ime = request.Ime,
+                Prezime = request.Prezime,
+                BrojIndeksa = request.BrojIndeksa,
+                DatumRodjenja = request.DatumRodjenja,
+                DatumKreiranja = DateTime.Now
+            };
+            db.Add(student);
+            await db.SaveChangesAsync(ct);
+            return Ok(Mapiraj(student));
+        }
+
         private static StudentResponse Mapiraj(Student s)
         {
             return new StudentResponse()
