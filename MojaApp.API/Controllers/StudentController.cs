@@ -13,8 +13,17 @@ namespace MojaApp.API.Controllers
         [HttpGet]
         public async Task<List<StudentResponse>> GetAll(CancellationToken ct)
         {
-            var students = await db.Student.ToListAsync(ct);
-            return students.Select(Mapiraj).ToList();
+            IQueryable<Student> upit = db.Student;
+            return await upit.OrderBy(x=> x.Prezime).ThenBy(x=>x.Ime).Select(x => new StudentResponse
+            {
+                Id = x.Id,
+                ImePrezime = x.Ime + ' ' + x.Prezime, //koristimo iqueryable da se ubrza dohvatanje studenata, to jeste da se ne dohvataju smjerovi studenta i da se sve to ucitava detaljno, ovako se translatuje u sql left join
+                BrojIndeksa = x.BrojIndeksa,
+                DatumRodjenja = x.DatumRodjenja,
+                Smjer = x.Smjer != null ? x.Smjer.Naziv : null
+            }).ToListAsync(ct);
+            //var students = await db.Student.ToListAsync(ct);
+            //return students.Select(Mapiraj).ToList();
         }
 
         [HttpGet("{id:int}")]
@@ -41,7 +50,29 @@ namespace MojaApp.API.Controllers
             await db.SaveChangesAsync(ct);
             return Ok(Mapiraj(student));
         }
-
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<Student>> Update(int id, StudentUpdateRequest request,CancellationToken ct)
+        {
+            Student? student = await db.Student.FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (student == null)
+                return NotFound();
+            student.Ime = request.Ime;
+            student.Prezime = request.Prezime;
+            student.BrojIndeksa = request.BrojIndeksa;
+            student.DatumRodjenja = request.DatumRodjenja;
+            student.SmjerId = request?.SmjerId;
+            await db.SaveChangesAsync(ct);
+            return Ok(Mapiraj(student));
+        }
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(int id, CancellationToken ct)
+        {
+            var student = await db.Student.FirstOrDefaultAsync(x => x.Id == id, ct);
+            if (student == null) return NotFound();
+            db.Student.Remove(student);
+            await db.SaveChangesAsync(ct);
+            return NoContent();
+        }
         private static StudentResponse Mapiraj(Student s)
         {
             return new StudentResponse()
