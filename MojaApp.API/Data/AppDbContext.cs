@@ -7,6 +7,8 @@ namespace MojaApp.API.Data
     {
         public DbSet<Student> Student => Set<Student>();
         public DbSet<Smjer> Smjer => Set<Smjer>();
+        public DbSet<Predmet> Predmet => Set<Predmet>();
+        public DbSet<Upis> Upis => Set<Upis>();
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -46,6 +48,24 @@ namespace MojaApp.API.Data
                     Naziv="Razvoj softvera"
                 }
                 );
+            modelBuilder.Entity<Predmet>(x=>
+            {
+                x.Property(x => x.Naziv).HasMaxLength(100).IsRequired();
+                x.Property(x => x.Sifra).HasMaxLength(10).IsRequired();
+                x.HasIndex(x => x.Sifra).IsUnique();
+            });
+            modelBuilder.Entity<Upis>(e =>
+            {
+                e.HasOne(x => x.Student)
+                .WithMany(x => x.Upisi)
+                .HasForeignKey(x => x.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne(x => x.Predmet)
+                .WithMany(x => x.Upisi)
+                .HasForeignKey(x => x.PredmetId)
+                .OnDelete(DeleteBehavior.Restrict);
+            });
         }
     }
 }

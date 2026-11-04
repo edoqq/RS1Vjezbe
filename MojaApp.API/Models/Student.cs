@@ -10,5 +10,6 @@
         public DateTime DatumKreiranja { get; set; }
         public Smjer? Smjer { get; set; }
         public int? SmjerId { get; set; }
+        public List<Upis> Upisi { get; set; }
     }
 }
