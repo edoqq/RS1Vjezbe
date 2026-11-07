@@ -22,6 +22,58 @@ namespace MojaApp.API.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MojaApp.API.Models.Predmet", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("Ects")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Naziv")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Sifra")
+                        .IsRequired()
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Sifra")
+                        .IsUnique();
+
+                    b.ToTable("Predmeti");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Ects = 7,
+                            Naziv = "Razvoj softvera I",
+                            Sifra = "RS1"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Ects = 6,
+                            Naziv = "Programiranje III",
+                            Sifra = "PR3"
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Ects = 6,
+                            Naziv = "Baze podataka II",
+                            Sifra = "BP2"
+                        });
+                });
+
             modelBuilder.Entity("MojaApp.API.Models.Smjer", b =>
                 {
                     b.Property<int>("Id")
@@ -32,22 +84,23 @@ namespace MojaApp.API.Migrations
 
                     b.Property<string>("Naziv")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
 
                     b.HasKey("Id");
 
-                    b.ToTable("Smjer");
+                    b.ToTable("Smjerovi");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            Naziv = "Softverski inzinjering"
+                            Naziv = "Softverski inženjering"
                         },
                         new
                         {
                             Id = 2,
-                            Naziv = "Razvoj softvera"
+                            Naziv = "Informacioni sistemi"
                         });
                 });
 
@@ -84,26 +137,81 @@ namespace MojaApp.API.Migrations
 
                     b.HasIndex("SmjerId");
 
-                    b.ToTable("Student");
+                    b.ToTable("Studenti");
 
                     b.HasData(
                         new
                         {
                             Id = 1,
-                            BrojIndeksa = "IB111111",
-                            DatumKreiranja = new DateTime(2026, 10, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DatumRodjenja = new DateOnly(1999, 3, 20),
+                            BrojIndeksa = "IB260001",
+                            DatumKreiranja = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            DatumRodjenja = new DateOnly(2006, 3, 14),
                             Ime = "Ana",
-                            Prezime = "Anic"
+                            Prezime = "Anić",
+                            SmjerId = 1
                         },
                         new
                         {
                             Id = 2,
-                            BrojIndeksa = "IB240231",
-                            DatumKreiranja = new DateTime(2026, 10, 31, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            DatumRodjenja = new DateOnly(2002, 4, 25),
-                            Ime = "Samir",
-                            Prezime = "Samiric"
+                            BrojIndeksa = "IB260002",
+                            DatumKreiranja = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Ime = "Edin",
+                            Prezime = "Edić",
+                            SmjerId = 2
+                        });
+                });
+
+            modelBuilder.Entity("MojaApp.API.Models.Upis", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("DatumUpisa")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("Ocjena")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PredmetId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PredmetId");
+
+                    b.HasIndex("StudentId", "PredmetId")
+                        .IsUnique();
+
+                    b.ToTable("Upisi");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            DatumUpisa = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PredmetId = 1,
+                            StudentId = 1
+                        },
+                        new
+                        {
+                            Id = 2,
+                            DatumUpisa = new DateTime(2026, 2, 20, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Ocjena = 8,
+                            PredmetId = 2,
+                            StudentId = 1
+                        },
+                        new
+                        {
+                            Id = 3,
+                            DatumUpisa = new DateTime(2026, 10, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            PredmetId = 1,
+                            StudentId = 2
                         });
                 });
 
@@ -117,9 +225,38 @@ namespace MojaApp.API.Migrations
                     b.Navigation("Smjer");
                 });
 
+            modelBuilder.Entity("MojaApp.API.Models.Upis", b =>
+                {
+                    b.HasOne("MojaApp.API.Models.Predmet", "Predmet")
+                        .WithMany("Upisi")
+                        .HasForeignKey("PredmetId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MojaApp.API.Models.Student", "Student")
+                        .WithMany("Upisi")
+                        .HasForeignKey("StudentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Predmet");
+
+                    b.Navigation("Student");
+                });
+
+            modelBuilder.Entity("MojaApp.API.Models.Predmet", b =>
+                {
+                    b.Navigation("Upisi");
+                });
+
             modelBuilder.Entity("MojaApp.API.Models.Smjer", b =>
                 {
                     b.Navigation("Studenti");
+                });
+
+            modelBuilder.Entity("MojaApp.API.Models.Student", b =>
+                {
+                    b.Navigation("Upisi");
                 });
 #pragma warning restore 612, 618
         }
