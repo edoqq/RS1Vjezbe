@@ -1,4 +1,4 @@
-namespace MojaApp.API.Models;
+namespace MojaApp.Domain.Models;
 
 public class Predmet
 {

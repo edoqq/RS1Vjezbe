@@ -1,4 +1,4 @@
-namespace MojaApp.API.Models;
+namespace MojaApp.Domain.Models;
 
 // Jedan smjer ima više studenata (1:N).
 public class Smjer

@@ -1,4 +1,4 @@
-namespace MojaApp.API.Models;
+namespace MojaApp.Domain.Models;
 
 // Veza student–predmet (M:N) sa svojim podacima: kada je student upisao predmet i koju je ocjenu dobio.
 public class Upis
